@@ -138,3 +138,5 @@ The steps calculation is performed by the operation `mod 4` on each digit of the
 Below is a screenshot showing the success message "Survived in Ohio" after correctly entering the sequence:
 
 ![Success Message - Survived in Ohio](./Screenshot_20250511-203555_SurviveGame_HW2.jpg)
+
+<img src="./Screenshot_20250511-203555_SurviveGame_HW2.jpg" alt="Success Message - Survived in Ohio" width="300"/>
