@@ -1,3 +1,5 @@
+<div dir="rtl">
+
 # 🧠 Survive Game – הנדסה הפוכה 
 
 פרויקט זה עוסק בהנדסה לאחור של אפליקציית משחק שפורקה מקובץ APK.  
@@ -96,16 +98,16 @@ Toast.makeText(this, "You Failed ", Toast.LENGTH_SHORT).show();
     String[] allStates = data.split(",");
     ```
    כתוצאה מכך נוצר מערך בגודל 10, כאשר כל אינדקס מייצג מדינה לפי הסדר:
-   0. California
-   1. Texas
-   2. Florida
-   3. New York
-   4. Illinois
-   5. Pennsylvania
-   6. Ohio
-   7. Washington
-   8. Michigan
-   9. Arizona
+0. California
+1. Texas
+2. Florida
+3. New York
+4. Illinois
+5. Pennsylvania
+6. Ohio
+7. Washington
+8. Michigan
+9. Arizona
 
 4. הספרה השביעית בת"ז (במיקום id.charAt(7)) משמשת כאינדקס לבחירת מצב (state) מתוך המחרוזת
 
