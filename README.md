@@ -132,3 +132,9 @@ The steps calculation is performed by the operation `mod 4` on each digit of the
 
 **Required Button Sequence:**
 ⬆️ ⬅️ ⬆️ ⬅️ ⬅️ ⬇️ ⬇️ ⬆️ ➡️
+
+## 🎮 Success Screenshot
+
+Below is a screenshot showing the success message "Survived in Ohio" after correctly entering the sequence:
+
+![Success Message - Survived in Ohio](./Screenshot_20250511-203555_SurviveGame_HW2.jpg)
