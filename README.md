@@ -1,144 +1,134 @@
-<div dir="rtl">
+# 🧠 Survive Game - Reverse Engineering
 
-# 🧠 Survive Game – הנדסה הפוכה 
+This project involves reverse engineering a game application that was decompiled from an APK file.  
+The goal was to understand how the application works, fix errors, and successfully run the game according to the logic in the code.
 
-פרויקט זה עוסק בהנדסה לאחור של אפליקציית משחק שפורקה מקובץ APK.  
-המטרה הייתה להבין את אופן הפעולה של האפליקציה, לתקן שגיאות, ולהריץ את המשחק בהצלחה לפי הלוגיקה שבקוד.
+## 🔧 Work Process
 
----
+### 1. Code Decompilation
+- We received an APK file.
+- We performed decompilation.
+- Search for files: Java files, XML, and AndroidManifest.
 
-## 🔧 תהליך העבודה
-
-### 1. פירוק הקוד (Decompiling)
-- קיבלנו קובץ APK.
-- ביצענו לו decompile
-- חיפוש אחר קבצים: קבצי Java, XML ו־AndroidManifest.
-
-### 2. ייבוא לקוד מקור בפרויקט Android Studio
-- יבאתי את הקבצים הבאים:
+### 2. Import to Source Code in Android Studio Project
+- I imported the following files:
     - `AndroidManifest.xml`
     - `Activity_Menu.java`
     - `Activity_Game.java`
     - `activity_menu.xml`
     - `activity_game.xml`
 
----
+## 🛠️ Fixes Made to AndroidManifest.xml
 
-## 🛠️ תיקונים שבוצעו בקובץ AndroidManifest.xml
+| Problem | Solution |
+|---------|----------|
+| Package name mismatch | Matched to class names in the code (`com.example.survivegame_hw2`) |
+| Missing `android:exported="true"` | Added to Activity with `intent-filter` |
+| Use of platformBuildVersionCode / Name | Removed — not valid |
+| `appComponentFactory` requiring API 28+ | Removed to avoid requiring high minSdk |
+| `targetSdkVersion` too low | Updated to 34 according to Google Play requirements |
 
-| בעיה | פתרון |
-|------|--------|
-| אי התאמה בשם החבילה | תואם לשם המחלקות בקוד (`com.example.survivegame_hw2`) |
-| חסר `android:exported="true"` | נוסף ל־Activity עם `intent-filter` |
-| שימוש ב־platformBuildVersionCode / Name | הוסרו — אינם חוקיים |
-| `appComponentFactory` שדורש API 28+ | הוסר כדי לא לדרוש minSdk גבוה |
-| `targetSdkVersion` נמוך מדי | עודכן ל־34 בהתאם לדרישות Google Play |
-
----
-## 🐞 פתרון שגיאות בקוד
+## 🐞 Fixing Code Errors
 
 ### 📄 Activity_Game.java
 
-#### ❌ שגיאה: שימוש לא תקין ב-Toast
+#### ❌ Error: Improper use of Toast
 
-- **הסבר**: הקוד כלל קריאה ל־`Toast.makeText()` עם ערך מספרי קשיח (`1`) כמשך ההצגה של ההודעה.  
-  אמנם `1` שווה ל־`Toast.LENGTH_LONG`, אך לפי ה־API של אנדרואיד נדרש שימוש בקבועים בלבד (`Toast.LENGTH_SHORT` או `Toast.LENGTH_LONG`).  
-  שימוש בערכים מספריים קשיחים גורם לשגיאות Lint ואינו תקני.
+- **Explanation**: The code included a call to `Toast.makeText()` with a hardcoded numeric value (`1`) as the duration parameter.  
+  Although `1` equals `Toast.LENGTH_LONG`, according to the Android API, only constants should be used (`Toast.LENGTH_SHORT` or `Toast.LENGTH_LONG`).  
+  Using hardcoded numeric values causes Lint errors and is not standard.
 
-- **קוד לפני התיקון**:
+- **Code before fix**:
   ```java
   Toast.makeText(this, "Survived in " + state, 1).show();
   Toast.makeText(this, "You Failed ", 1).show();
   ```
 
-- **קוד אחרי התיקון**:
-
-```java
-Toast.makeText(this, "Survived in " + state, Toast.LENGTH_SHORT).show();
-Toast.makeText(this, "You Failed ", Toast.LENGTH_SHORT).show();
-```
+- **Code after fix**:
+  ```java
+  Toast.makeText(this, "Survived in " + state, Toast.LENGTH_SHORT).show();
+  Toast.makeText(this, "You Failed ", Toast.LENGTH_SHORT).show();
+  ```
 
 ### 📄 Activity_Menu.java
 
-#### ❌ שגיאה: `Cannot resolve symbol 'url'`
-- **הסבר**: לא הוגדר ערך בשם `url` בקובץ `strings.xml`.
-- **פתרון**:
-  הוספתי את השורה הבאה ל־`res/values/strings.xml`:
+#### ❌ Error: `Cannot resolve symbol 'url'`
+- **Explanation**: A value named `url` was not defined in the `strings.xml` file.
+- **Solution**:
+  I added the following line to `res/values/strings.xml`:
   ```xml
   <string name="url">https://pastebin.com/raw/T67TVJG9</string>
+  ```
 
-#### ❌ תווים בלתי נראים (Zero-width characters) בכתובת ה־URL
+#### ❌ Zero-width characters in the URL
 
-- **הסבר**: תווים מוסתרים חדרו לכתובת ה־URL במהלך ההעתקה. תווים אלו אינם נראים לעין אך גורמים לקריסת הקריאה מהשרת ולשגיאת חיבור
+- **Explanation**: Hidden characters were introduced into the URL during copying. These characters are invisible to the eye but cause the server reading to crash and connection errors.
 
-  לדוגמה, בתמונה הבאה מתוך Android Studio ניתן לראות את התווים הבלתי נראים שהופיעו לאחר הדבקת הכתובת :
+  For example, in the following image from Android Studio, you can see the invisible characters that appeared after pasting the address:
 
-![Zero Width Characters in URL](./wrong_url.png)
+  ![Zero Width Characters in URL](./wrong_url.png)
 
-- **פתרון**:
-  הקלדתי ידנית את הכתובת שמצאתי בתקייה
+- **Solution**:
+  I manually typed the address I found in the folder.
 
-## 🕹️ איך עובד המשחק?
+## 🕹️ How the Game Works
 
-לאחר מעבר על הקוד וניתוח שלו הבנתי שהאפליקציה כוללת שני מסכים עיקריים:
+After reviewing and analyzing the code, I understood that the application includes two main screens:
 
----
+### 1. `Activity_Menu` – Opening Screen
 
-### 1. `Activity_Menu` – מסך פתיחה
-
-1. המשתמש מזין תעודת זהות באורך 9 ספרות בשדה טקסט.
-2. מתבצעת קריאה לשרת בעזרת הפונקציה:
+1. The user enters a 9-digit ID number in a text field.
+2. A call to the server is made using the function:
    ```java
    getJSON()
-    ```
-3. התגובה מהשרת היא מחרוזת של מצבים (states) שמכילה שמות של מדינות, מופרדים בפסיק:
-   California,Texas,Florida,New York,Illinois,Pennsylvania,Ohio,Washington,Michigan,Arizona
-   המחרוזת מפוצלת למערך מחרוזות באמצעות הפונקציה:
-    ```java
-    String[] allStates = data.split(",");
-    ```
-   כתוצאה מכך נוצר מערך בגודל 10, כאשר כל אינדקס מייצג מדינה לפי הסדר:
-0. California
-1. Texas
-2. Florida
-3. New York
-4. Illinois
-5. Pennsylvania
-6. Ohio
-7. Washington
-8. Michigan
-9. Arizona
+   ```
+3. The response from the server is a string of states containing names of US states, separated by commas:
+   `California,Texas,Florida,New York,Illinois,Pennsylvania,Ohio,Washington,Michigan,Arizona`
 
-4. הספרה השביעית בת"ז (במיקום id.charAt(7)) משמשת כאינדקס לבחירת מצב (state) מתוך המחרוזת
+   The string is split into an array of strings using the function:
+   ```java
+   String[] allStates = data.split(",");
+   ```
 
-### 2. `Activity_Game` – מסך המשחק
+   This creates an array of size 10, where each index represents a state in order:
+    - 0: California
+    - 1: Texas
+    - 2: Florida
+    - 3: New York
+    - 4: Illinois
+    - 5: Pennsylvania
+    - 6: Ohio
+    - 7: Washington
+    - 8: Michigan
+    - 9: Arizona
 
-1. ישנם 4 כפתורים: ⬅️ ➡️ ⬆️ ⬇️ (left, right, up, down)
-2. הקוד מבצע חישוב:
-    ```java
+4. The seventh digit in the ID (at position id.charAt(7)) is used as an index to select a state from the string.
+
+### 2. `Activity_Game` – Game Screen
+
+1. There are 4 buttons: ⬅️ ➡️ ⬆️ ⬇️ (left, right, up, down)
+2. The code performs a calculation:
+   ```java
    steps[i] = Character.getNumericValue(id.charAt(i)) % 4;
-    ```
-3. חץ מתאים → תרגום לערך בין 0–3 → כל ספרה בת"ז
-4. מופיעה הודעה "Survived in {state}" → אם הכל נכון
+   ```
+3. Matching arrow → Translated to a value between 0–3 → Each digit in the ID
+4. A message "Survived in {state}" appears → If everything is correct
 
-#### 🔎 דוגמה: תעודת זהות `206843369`
+#### 🔎 Example: ID number `206843369`
 
-חישוב הצעדים מתבצע לפי הפעולה `mod 4` על כל ספרה בתעודת הזהות:
+The steps calculation is performed by the operation `mod 4` on each digit of the ID:
 
-| אינדקס בת"ז | ספרה | ספרה % 4 | חץ תואם    |
-|--------------|--------|------------|--------------|
-| 0            | 2      | 2          | ⬆️ Up        |
-| 1            | 0      | 0          | ⬅️ Left      |
-| 2            | 6      | 2          | ⬆️ Up        |
-| 3            | 8      | 0          | ⬅️ Left      |
-| 4            | 4      | 0          | ⬅️ Left      |
-| 5            | 3      | 3          | ⬇️ Down      |
-| 6            | 3      | 3          | ⬇️ Down      |
-| 7            | 6      | 2          | ⬆️ Up        |
-| 8            | 9      | 1          | ➡️ Right     |
+| ID Index | Digit | Digit % 4 | Matching Arrow |
+|----------|-------|-----------|---------------|
+| 0        | 2     | 2         | ⬆️ Up         |
+| 1        | 0     | 0         | ⬅️ Left       |
+| 2        | 6     | 2         | ⬆️ Up         |
+| 3        | 8     | 0         | ⬅️ Left       |
+| 4        | 4     | 0         | ⬅️ Left       |
+| 5        | 3     | 3         | ⬇️ Down       |
+| 6        | 3     | 3         | ⬇️ Down       |
+| 7        | 6     | 2         | ⬆️ Up         |
+| 8        | 9     | 1         | ➡️ Right      |
 
----
-
-**סדר הלחיצות הנדרש:**
+**Required Button Sequence:**
 ⬆️ ⬅️ ⬆️ ⬅️ ⬅️ ⬇️ ⬇️ ⬆️ ➡️
-
